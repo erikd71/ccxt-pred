@@ -1,0 +1,3 @@
+[bot]
+workspace_path = "/D/ccxt-pred-workspace"
+exchange = "bitvavo"
