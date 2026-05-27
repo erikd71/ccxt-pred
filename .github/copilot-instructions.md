@@ -6,6 +6,10 @@ The primary motivation is moving from Encog (limiting) to PyTorch, and learning
 modern Python ML/data tooling (PyTorch, Pandas, etc.) through this project.
 The current Java bot is live and profitable — this is a rewrite, not a greenfield design.
 
+**First milestone**: a Python/PyTorch implementation that achieves similar backtest results
+to the current Java/Encog bot, following the same core trading logic but using Python best
+practices throughout. See `specs/project_overview.md` for the full design reference.
+
 ## Style & Approach
 - **Spec before code.** For any non-trivial feature, agree on a spec (`specs/*.md`) first.
   Keep specs brief and practical — this is a hobby project, not a corporate deliverable.
@@ -45,3 +49,6 @@ See `specs/bot.toml.md` for the full workspace layout and CSV format rules.
   abort on unexpected errors; the live trading bot must never abort silently — it must recover
   or hold position safely, because an unattended crash while invested is dangerous.
 - Secrets (api_key, api_secret) come from `account.toml` — never hard-code or log them.
+- **No logic duplication between training and live trading.** Feature engineering, normalization,
+  and model inference must live in shared library code (`src/ccxt_pred/`) used by both the
+  training pipeline and the live bot. This is the primary guard against train/live inconsistency.
