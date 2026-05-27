@@ -138,20 +138,23 @@ model is the one with the highest backtest PnL**, not the lowest training/valida
 - **Validation set**: most recent portion — used for the backtest. The model never trains
   on this data, so the PnL figure is an honest out-of-sample estimate.
 
+### Decision thresholds
+| Signal | Condition | Action |
+|--------|-----------|--------|
+| BUY | model output `>= 0.2` | increase position by **5% of account value** (backtest) / **25%** (live) |
+| SELL | model output `<= -0.1` | sell **100%** of the position in that market |
+| IDLE | otherwise | do nothing |
+
+A BUY signal accumulates into an existing position — the bot can and often will buy the
+same market multiple times before selling. A SELL signal always fully exits the position.
+
 ### Simulation rules
 | Parameter | Value |
 |-----------|-------|
 | Starting capital | 100 EUR (artificial) |
-| Trade size | Small fixed fraction per trade, to avoid depleting the account in a single move |
-| Trading fee | 0.25% per trade (Bitvavo taker fee) |
+| BUY trade size | 5% of current account value per signal |
+| Trading fee | 0.25% per trade (Bitvavo taker fee), applied on both buy and sell |
 | Trade direction | Long only — buy then sell |
-| Concurrent positions | At most one open position at a time |
-
-### Decision thresholds
-The backtest uses a fixed set of **conservative, broadly applicable** BUY/SELL thresholds
-(not the thresholds being actively tuned). This ensures the PnL metric is stable across
-epochs and reflects the model quality rather than threshold sensitivity.
-Exact threshold values: TBD in `specs/backtest.md`.
 
 ### Reporting
 - PnL is expressed as a **percentage return** on the 100 EUR starting capital.
@@ -169,5 +172,5 @@ to evaluate training progress. A richer GUI can be added in a later iteration.
 - [x] Labeling strategy — see `specs/labeling.md`
 - [x] Network architecture — 43 → [30, 10, 5] → 1, Elliott Symmetric activation, dropout 0.4
 - [x] Training hyperparameters — RPROP (`lr=0.001`, max step `0.5`), L2 `0.001`
-- [x] Backtest engine — simulation on validation set, 100 EUR account, 0.25% fee, PnL = best-model criterion
+- [x] Backtest engine — simulation on validation set, 100 EUR account, 0.25% fee, PnL = best-model criterion; BUY ≥ 0.2 (+5% account), SELL ≤ −0.1 (exit 100%)
 - [x] GUI scope — out of scope for milestone 1; CLI output only
