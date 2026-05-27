@@ -127,9 +127,47 @@ See `specs/labeling.md`.
 
 ---
 
+## Backtest Engine
+
+The backtest simulates the live bot's trading loop on historical candlestick data using
+an artificial account. It is the primary quality signal during training — the **best
+model is the one with the highest backtest PnL**, not the lowest training/validation loss.
+
+### Data split
+- **Training set**: older portion of the candlestick data — used for weight updates only.
+- **Validation set**: most recent portion — used for the backtest. The model never trains
+  on this data, so the PnL figure is an honest out-of-sample estimate.
+
+### Simulation rules
+| Parameter | Value |
+|-----------|-------|
+| Starting capital | 100 EUR (artificial) |
+| Trade size | Small fixed fraction per trade, to avoid depleting the account in a single move |
+| Trading fee | 0.25% per trade (Bitvavo taker fee) |
+| Trade direction | Long only — buy then sell |
+| Concurrent positions | At most one open position at a time |
+
+### Decision thresholds
+The backtest uses a fixed set of **conservative, broadly applicable** BUY/SELL thresholds
+(not the thresholds being actively tuned). This ensures the PnL metric is stable across
+epochs and reflects the model quality rather than threshold sensitivity.
+Exact threshold values: TBD in `specs/backtest.md`.
+
+### Reporting
+- PnL is expressed as a **percentage return** on the 100 EUR starting capital.
+- Backtest is run every `n` epochs during training (configurable).
+- The checkpoint with the **highest cumulative PnL** is retained as the best model.
+
+### GUI / output — milestone 1 scope
+No interactive GUI for milestone 1. The training script prints per-epoch loss and
+flags each new PnL high-water mark to stdout. A simple PnL-vs-epoch log is sufficient
+to evaluate training progress. A richer GUI can be added in a later iteration.
+
+---
+
 ## Key Open Questions (before milestone 1)
 - [x] Labeling strategy — see `specs/labeling.md`
 - [x] Network architecture — 43 → [30, 10, 5] → 1, Elliott Symmetric activation, dropout 0.4
 - [x] Training hyperparameters — RPROP (`lr=0.001`, max step `0.5`), L2 `0.001`
-- [ ] Backtest engine design (PnL calculation, fees, slippage assumptions)
-- [ ] GUI scope — full interactive trainer, or minimal CLI output for milestone 1?
+- [x] Backtest engine — simulation on validation set, 100 EUR account, 0.25% fee, PnL = best-model criterion
+- [x] GUI scope — out of scope for milestone 1; CLI output only
