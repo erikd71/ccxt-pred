@@ -47,9 +47,26 @@ can be iterated on independently.
 ## ML Model
 
 ### Architecture
-- Fully connected feed-forward neural network (MLP).
-- Single regression output in the range `[-1, +1]`.
-- Activation and depth: TBD in model spec.
+Fully connected feed-forward neural network (MLP):
+
+| Layer | Size | Notes |
+|-------|------|-------|
+| Input | 43 | one node per feature |
+| Hidden 1 | 30 | |
+| Hidden 2 | 10 | |
+| Hidden 3 | 5 | |
+| Output | 1 | regression, range `(-1, +1)` |
+
+**Activation — Elliott Symmetric** (all hidden layers and output):
+```
+f(x) = x / (1 + |x|)
+```
+This is Encog's `ActivationElliotSymmetric`. It maps ℝ → (-1, 1), similar shape to
+`tanh` but cheaper to compute. PyTorch has no built-in equivalent; implement as a
+custom `nn.Module`. `tanh` is a close substitute if a clean separation from Encog
+behaviour is acceptable.
+
+**Dropout**: rate `0.4`, applied after each hidden layer during training.
 
 ### Output Semantics
 | Value | Meaning |
@@ -88,16 +105,31 @@ normalized = 2 * (value / p) / (1 + value / p) - 1
 Concretely: `0` means the value equals `p`; approaching `+1` means value → ∞;
 approaching `-1` means value → 0. Volume features: normalization TBD.
 
+### Training Hyperparameters
+
+**Optimizer — RPROP (Resilient Backpropagation)**
+Encog's `ResilientPropagation`. PyTorch equivalent: `torch.optim.Rprop`.
+
+| Encog parameter | Value | PyTorch mapping |
+|-----------------|-------|-----------------|
+| `RPROP_INITIAL_UPDATE` | `0.001` | `lr=0.001` (initial step size) |
+| `RPROP_MAX_STEP` | `0.5` | `step_sizes=(1e-6, 0.5)` |
+
+**Regularization**
+- L2 weight decay: `0.001` → `weight_decay=0.001` on the optimizer
+- Dropout: `0.4` (see Architecture above)
+
+Batch size and epoch count: TBD (RPROP is a full-batch algorithm in Encog;
+batch behaviour in PyTorch's `Rprop` may differ — to be validated during training).
+
 ### Labeling Strategy
-Details to be defined in `specs/labeling.md`. The label assigned to each historical
-candle determines what the model is trained to output at that point in time. Getting
-the labeling strategy right is critical — it defines what "a good trade" means to the model.
+See `specs/labeling.md`.
 
 ---
 
 ## Key Open Questions (before milestone 1)
 - [x] Labeling strategy — see `specs/labeling.md`
-- [ ] Exact network architecture (layers, activations, dropout)
-- [ ] Training hyperparameters (learning rate, batch size, optimizer)
+- [x] Network architecture — 43 → [30, 10, 5] → 1, Elliott Symmetric activation, dropout 0.4
+- [x] Training hyperparameters — RPROP (`lr=0.001`, max step `0.5`), L2 `0.001`
 - [ ] Backtest engine design (PnL calculation, fees, slippage assumptions)
 - [ ] GUI scope — full interactive trainer, or minimal CLI output for milestone 1?
