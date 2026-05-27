@@ -96,7 +96,7 @@ the labeling strategy right is critical — it defines what "a good trade" means
 ---
 
 ## Key Open Questions (before milestone 1)
-- [ ] Labeling strategy — how is each historical candle labeled BUY / SELL / IDLE?
+- [x] Labeling strategy — see `specs/labeling.md`
 - [ ] Exact network architecture (layers, activations, dropout)
 - [ ] Training hyperparameters (learning rate, batch size, optimizer)
 - [ ] Backtest engine design (PnL calculation, fees, slippage assumptions)
