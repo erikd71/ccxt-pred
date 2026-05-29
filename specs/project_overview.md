@@ -22,8 +22,11 @@ can be iterated on independently.
    - Exposes controls to: run a manual backtest with the current best model,
      adjust decision thresholds, and "promote" a model to production
 
-3. **Promote a model** — copy the trained weights + config to the `models/` directory
-   so the live bot picks them up on next restart.
+3. **Promote a model** — copy the trained weights + strategy config JSON to the
+   `models/` directory so the live bot picks them up on next restart.
+   The strategy config structure is defined in `specs/strategy_config.md` and includes
+   `general`, `labeling`, `model`, `hyper_parameters`, `input_features`, `trading`,
+   and `metadata` (provenance).
 
 4. **Commit and push** — version-control the promoted model config.
 
@@ -41,6 +44,11 @@ can be iterated on independently.
   closed candle, compute features, run inference, apply thresholds, execute trade if warranted.
 - **Configurable, not hard-coded.** Market list, timeframe, model hyperparameters, and
   decision thresholds are all stored in config files, not baked into code.
+- **Single source of strategy truth.** A promoted model is always paired with one
+   `strategy_config.json`; training/backtest/live must all load their behavior from this
+   file (see `specs/strategy_config.md`).
+- **Provenance is part of the artifact.** Training timestamp, git commit, and dataset
+   range are stored in strategy config metadata for reproducibility and auditability.
 
 ---
 
