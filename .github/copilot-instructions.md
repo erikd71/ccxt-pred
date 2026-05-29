@@ -11,8 +11,10 @@ to the current Java/Encog bot, following the same core trading logic but using P
 practices throughout. See `specs/project_overview.md` for the full design reference.
 
 ## Style & Approach
-- **Spec before code.** For any non-trivial feature, agree on a spec (`specs/*.md`) first.
+- **Spec before code.** For any non-trivial feature, agree on a spec first.
   Keep specs brief and practical — this is a hobby project, not a corporate deliverable.
+  Organize specs in the appropriate directory: `specs/` for general project specs,
+  `specs/scripts/` for script specs, `specs/src/` for source code specs.
 - **No over-engineering.** Prefer simple, readable solutions. Avoid abstractions for one-off tasks.
 - **Learn-oriented.** When a Python/PyTorch/Pandas idiom differs from a naive approach,
   briefly mention it so the developer can learn the "right" way.
@@ -29,7 +31,10 @@ practices throughout. See `specs/project_overview.md` for the full design refere
 ```
 bot.toml                        # root config (exchange, workspace_path)
 scripts/                        # runnable scripts (uv run scripts/<name>.py)
-specs/                          # spec documents, one per feature/script
+specs/                          # spec documents (hierarchical)
+  *.md                          # general project specs
+  scripts/                      # script-specific specs
+  src/                          # source code module specs
 src/ccxt_pred/                  # library code (data, features, models, trading)
 tests/
 ```
