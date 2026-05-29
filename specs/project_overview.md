@@ -1,5 +1,17 @@
 # Spec - Project Overview
 
+## Specs Organization
+
+This document is part of a hierarchical specs structure:
+
+- **`./specs/`** — General project specifications (project overview, workspace config, strategy config data format)
+- **`./specs/scripts/`** — Specifications for runnable scripts (`update_candlesticks.py`, etc.)
+- **`./specs/src/`** — Specifications for source code modules (`labeling.py`, feature engineering, models, etc.)
+
+This mirrors the project code layout and makes it clear where new specs should go.
+
+---
+
 ## First Milestone
 Produce a Python/PyTorch trading bot that achieves **similar backtest results** to the
 current Java/Encog bot. The goal is a clean reimplementation following Python best
@@ -24,7 +36,7 @@ can be iterated on independently.
 
 3. **Promote a model** — copy the trained weights + strategy config JSON to the
    `models/` directory so the live bot picks them up on next restart.
-   The strategy config structure is defined in `specs/strategy_config.md` and includes
+   The strategy config structure is defined in `specs/src/strategy_config.md` and includes
    `general`, `labeling`, `model`, `hyper_parameters`, `input_features`, `trading`,
    and `metadata` (provenance).
 
@@ -131,7 +143,7 @@ Batch size and epoch count: TBD (RPROP is a full-batch algorithm in Encog;
 batch behaviour in PyTorch's `Rprop` may differ — to be validated during training).
 
 ### Labeling Strategy
-See `specs/labeling.md`.
+See `specs/src/labeling.md`.
 
 ---
 
